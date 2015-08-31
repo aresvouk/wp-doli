@@ -132,6 +132,16 @@ class WPDoli_WC_Integration extends WC_Integration {
 	 );
 
 	}
+	function getAuth($username,$password) {
+		return	$ws_auth  = array(
+				'dolibarrkey'       => $this->wpdoli_settings_ws_key,
+				'sourceapplication' => $this->sourceapplication,
+				'login'             => $username,
+				'password'          => $password,
+				'entity'            => $this->wpdoli_settings_entity,
+		);
+	
+	}
 
 
 	/**
@@ -171,6 +181,7 @@ class WPDoli_WC_Integration extends WC_Integration {
 	 * @return array liste des produit
 	 */
 	public function dolibarr_getProduit() {
+	//	echo '<pre>';var_dump($this->dolibarr_getCountry());exit;
 		$service = self::PRODUCT_ENDPOINT;
 		$wsdl_mode = self::WSDL_MODE;
 		$prod = array();
@@ -208,6 +219,89 @@ class WPDoli_WC_Integration extends WC_Integration {
 		}
 		return $prod;
 	}
+	
+	/**
+	 * liste des produits de dolibarr via le service web
+	 *
+	 * @return array liste des produit
+	 */
+	public function dolibarr_getCountry() {
+		$service = self::PRODUCT_ENDPOINT;
+		$wsdl_mode = self::WSDL_MODE;
+		$prod = array();
+		$soap_client = $this->getClientSoap($service, $wsdl_mode);
+		if(!is_object($soap_client))
+			return $soap_client;
+		//liste des produits de dolibarr
+		try {
+			//$result = $soap_client->getListOfProductsOrServices($this->getCurrentAuth());
+			$parameters = array('authentication'=>$this->getCurrentAuth());
+			$WS_METHOD  = 'getListOfCountry';
+			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
+	
+			//$result = $soap_client->getProductsForCategory($ws_auth,1);
+		} catch ( SoapFault $exception ) {
+			$this->logger->add('wpdoli','getListOfProductsOrServices request: ' . $exception->getMessage());
+			$this->errors[] = 'Webservice error:' . $exc->getMessage();
+			// Do nothing.
+			return;
+		}
+	
+		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {
+			$this->logger->add('wpdoli','getListOfCountry response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
+			// Do nothing
+			return -1;
+		}
+		/** @var Dolibarr_Product[] $dolibarr_products */
+		$dolibarr_products = $result['products'];
+		//var_dump($dolibarr_products);exit;
+		//return $dolibarr_products;
+		if ( ! empty( $dolibarr_products ) ) {
+			foreach ( $dolibarr_products as $dolibarr_product ) {
+				$prod [$dolibarr_product["id"]] =  $dolibarr_product["label"];
+			}
+		}
+		return $prod;
+	}
+	
+	/**
+	 * authentification de l'utilisateur  dolibarr via le service web
+	 *
+	 * @return array liste des produit
+	 */
+	public function dolibarr_check_authentication($username,$password) {
+		$service = self::PRODUCT_ENDPOINT;
+		$wsdl_mode = self::WSDL_MODE;
+		$prod = array();
+		$soap_client = $this->getClientSoap($service, $wsdl_mode);
+		if(!is_object($soap_client))
+			return $soap_client;
+		//liste des produits de dolibarr
+		try {
+			//$result = $soap_client->getListOfProductsOrServices($this->getCurrentAuth());
+			$parameters = array('authentication'=>$this->getAuth($username, $password));
+			$WS_METHOD  = 'getUser';
+			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
+	
+			//$result = $soap_client->getProductsForCategory($ws_auth,1);
+		} catch ( SoapFault $exception ) {
+			$this->logger->add('wpdoli','getUser request: ' . $exception->getMessage());
+			$this->errors[] = 'Webservice error:' . $exc->getMessage();
+			// Do nothing.
+			return -1;
+		}
+		//var_dump($result);exit;
+		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {//var_dump($result);exit;
+			//$this->logger->add('wpdoli','getUser response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
+			// Do nothing
+			return $result;
+		}
+		
+		/** @var Dolibarr_Product[] $dolibarr_products */
+		//var_dump($result);
+		//$dolibarr_user = $result['user'];
+		return $result	;
+	}
 	/**
 	 * Creates a thirdparty in Dolibarr via webservice using WooCommerce user data
 	 *
@@ -219,7 +313,7 @@ class WPDoli_WC_Integration extends WC_Integration {
 		//$ref        = get_user_meta( $user_id, 'billing_company', true );
 		$service = self::THIRDPARTY_ENDPOINT;
 		$wsdl_mode = self::WSDL_MODE;
-		$individual = 1;
+		$individual = $arrThirdparty['private'];
 		$soap_client = $this->getClientSoap($service, $wsdl_mode);
 		if(!is_object($soap_client))
 			return $soap_client;
@@ -233,9 +327,10 @@ class WPDoli_WC_Integration extends WC_Integration {
 // 		$new_thirdparty->fk_user_author = 1;
 
 		$new_thirdparty = array(
-				'ref'=> $arrThirdparty['last_name'], // Company name or individual last name
+				'ref'=> ($individual)?$arrThirdparty['first_name'].' '.$arrThirdparty['last_name']:$arrThirdparty['last_name'], // Company name or individual last name
 				'individual'=> $individual, // Individual
 				'firstname'=> $arrThirdparty['first_name'],
+				'lastname'=> $arrThirdparty['last_name'],
 				'status   '=> '1', // Active
 				'client   '=> '1', // Is a client
 				'supplier '=> '0', // Is not a supplier
