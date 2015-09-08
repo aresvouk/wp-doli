@@ -26,8 +26,8 @@
 
 namespace ReCaptcha\RequestMethod;
 
-use ReCaptcha1\RequestMethod;
-use ReCaptcha1\RequestParameters;
+use ReCaptcha\RequestMethod;
+use ReCaptcha\RequestParameters;
 
 /**
  * Sends POST requests to the reCAPTCHA service.

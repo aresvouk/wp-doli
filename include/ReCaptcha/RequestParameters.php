@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ReCaptcha1;
+namespace ReCaptcha;
 
 /**
  * Stores and formats the parameters for the request to the reCAPTCHA service.
@@ -84,9 +84,9 @@ class RequestParameters
             $params['remoteip'] = $this->remoteIp;
         }
 
-//         if (!is_null($this->version)) {
-//             $params['version'] = $this->version;
-//         }
+        if (!is_null($this->version)) {
+            $params['version'] = $this->version;
+        }
 
         return $params;
     }

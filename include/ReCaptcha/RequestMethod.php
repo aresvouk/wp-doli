@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ReCaptcha1;
+namespace ReCaptcha;
 
 /**
  * Method used to send the request to the service.

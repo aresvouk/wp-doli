@@ -24,10 +24,10 @@
  * THE SOFTWARE.
  */
 
-namespace ReCaptcha1\RequestMethod;
+namespace ReCaptcha\RequestMethod;
 
-use ReCaptcha1\RequestMethod;
-use ReCaptcha1\RequestParameters;
+use ReCaptcha\RequestMethod;
+use ReCaptcha\RequestParameters;
 
 /**
  * Sends a POST request to the reCAPTCHA service, but makes use of fsockopen() 

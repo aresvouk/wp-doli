@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ReCaptcha1;
+namespace ReCaptcha;
 
 /**
  * The response returned from the service.
@@ -51,7 +51,7 @@ class Response
      */
     public static function fromJson($json)
     {
-       
+        var_dump($json);
         $responseData = json_decode($json, true);
 
         if (!$responseData) {

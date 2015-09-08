@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ReCaptcha1\RequestMethod;
+namespace ReCaptcha\RequestMethod;
 
 /**
  * Convenience wrapper around native socket and file functions to allow for

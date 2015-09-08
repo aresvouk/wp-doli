@@ -1,39 +1,47 @@
 <?php
 
-namespace ReCaptcha1\RequestMethod;
+namespace ReCaptcha\RequestMethod;
 
-use ReCaptcha1\RequestMethod;
-use ReCaptcha1\RequestParameters;
+use ReCaptcha\RequestMethod;
+use ReCaptcha\RequestParameters;
 
 /**
  * Sends cURL request to the reCAPTCHA service.
  */
 class Curl implements RequestMethod
 {
-	/**
-	 * URL to which requests are sent via cURL.
-	 * @const string
-	 */
-	const SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    /**
+     * URL to which requests are sent via cURL.
+     * @const string
+     */
+    const SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
-	/**
-	 * Submit the cURL request with the specified parameters.
-	 *
-	 * @param RequestParameters $params Request parameters
-	 * @return string Body of the reCAPTCHA response
-	 */
-	public function submit(RequestParameters $params)
-	{
-		 
-		$url = self::SITE_VERIFY_URL.'?'.$params->toQueryString();
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		$response = curl_exec($ch);
-		curl_close($ch);
-		return $response;
-	}
+    /**
+     * Submit the cURL request with the specified parameters.
+     *
+     * @param RequestParameters $params Request parameters
+     * @return string Body of the reCAPTCHA response
+     */
+    public function submit(RequestParameters $params)
+    {
+        $handle = curl_init(self::SITE_VERIFY_URL);
+
+        $options = array(
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $params->toQueryString(),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/x-www-form-urlencoded'
+            ),
+            CURLINFO_HEADER_OUT => false,
+            CURLOPT_HEADER => false,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => true
+        );
+        curl_setopt_array($handle, $options);
+
+        $response = curl_exec($handle);
+        curl_close($handle);
+
+        return $response;
+    }
 }
