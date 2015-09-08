@@ -67,6 +67,8 @@ class WPDoli_WC_Integration extends WC_Integration {
 	const OTHER_ENDPOINT      = 'server_other.php';
 	const ABON_ENDPOINT      = 'server_abonnement.php';
 	const PRODUCT_ENDPOINT    = 'server_abonnement.php';
+	const USER_ENDPOINT = 'server_user.php';
+	
 	const WSDL_MODE           = '?wsdl';
 	const WPDOLI_NS ='http://www.dolibarr.org/ns/';
 
@@ -442,7 +444,46 @@ class WPDoli_WC_Integration extends WC_Integration {
 		return $result;
 	}
 
-
+	public function dolibarr_setPassword( $login,$new_password) {
+		//$ref        = get_user_meta( $user_id, 'billing_company', true );
+		$service = self::USER_ENDPOINT;
+		$wsdl_mode = self::WSDL_MODE;
+		$soap_client = $this->getClientSoap($service, $wsdl_mode);
+		if(!is_object($soap_client))
+			return $soap_client;
+		
+		$shortuser = array('login'=>$login,'password'=>$new_password	);
+	
+	
+		try {//var_dump($this->getCurrentAuth());exit;
+			$parameters = array('authentication'=>$this->getCurrentAuth(),'shortuser'=>$shortuser);
+			$WS_METHOD  = 'setUserPassword';
+			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
+			//var_dump($result);exit;
+			//
+	
+		} catch ( SoapFault $exception ) {
+			$this->logger->add(
+					'wpdoli',
+					'set_password request: ' . $exception->getMessage()
+			);
+	
+			// Do nothing.
+			return -1;
+		}
+	
+		if ( ! ( 'OK' == $result['result']['result_code'] ) || $result ==false) {
+			$this->logger->add(
+					'wpdoli',
+					'set_password response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']
+			);
+			//var_dump($result);exit;
+			// Do nothing
+			return -1;
+		}
+		return $result;
+	}
+	
 	/**
 	 * Display HTTPS is needed
 	 * @see WC_Integration::display_errors()
