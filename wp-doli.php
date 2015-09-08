@@ -130,9 +130,11 @@ Class Wpdoli {
 					return $user;
 
 				} else {
+					
 					$userdata = array(
 							'user_login'  =>  $username,
-							'user_pass'   =>  $password //.
+							'user_pass'   =>  $password ,
+							'user_email' => is_email($username)?$username:null
 					);
 					$user_id = wp_insert_user( $userdata ) ;
 
