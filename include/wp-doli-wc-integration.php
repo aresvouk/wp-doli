@@ -292,7 +292,7 @@ class WPDoli_WC_Integration extends WC_Integration {
 			// Do nothing.
 			return -1;
 		}
-		//var_dump($result);exit;
+		
 		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {//var_dump($result);exit;
 			//$this->logger->add('wpdoli','getUser response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
 			// Do nothing
@@ -336,11 +336,17 @@ class WPDoli_WC_Integration extends WC_Integration {
 				'status   '=> '1', // Active
 				'client   '=> '1', // Is a client
 				'supplier '=> '0', // Is not a supplier
-				'address'=> $arrThirdparty['livr_adresse'],
-				'zip'=>$arrThirdparty['livr_code_postable'],
-				'town'=> $arrThirdparty['livr_ville'],
-				'country_code'=> $arrThirdparty['livr_pays'],
+				'address'=> $arrThirdparty['fac_adresse'],
+				'zip'=>$arrThirdparty['fac_code_postable'],
+				'town'=> $arrThirdparty['fac_ville'],
+				'country_code'=> $arrThirdparty['fac_pays'],
+				'livr_adress'=> $arrThirdparty['livr_adresse'],
+				'livr_zip'=>$arrThirdparty['livr_code_postable'],
+				'livr_town'=> $arrThirdparty['livr_ville'],
+				'livr_country'=> $arrThirdparty['livr_pays'],
 				'phone'=>$arrThirdparty['tel'],
+				'contactname'=>$arrThirdparty['contactname'],
+				'contactfirstname'=>$arrThirdparty['contactfirstname'],
 				'email'=>$arrThirdparty['email'],
 				'ref_ext'=> uniqid(),
 				'fk_user_author'=> 1,

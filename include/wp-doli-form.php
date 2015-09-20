@@ -32,6 +32,8 @@ class WPDoliFormAbonnement {
 	public $country;
 	public $dolibarr ;
 	public $issameadress;
+	public $contactname;
+	public $contactfirstname;
 	function __construct($dolibarr) {
 
 		$this->dolibarr = $dolibarr;
@@ -67,7 +69,9 @@ class WPDoliFormAbonnement {
 				'num_tva',
 				'isnewletter',
 				'issameadress',
-				'private');
+				'private',
+				'contactname',
+				'contactfirstname');
 	}
 
 	function  getAttributsLable() {
@@ -81,7 +85,7 @@ class WPDoliFormAbonnement {
 				'website'=>'Web site',
 				'tel'=>'TÉL/GSM',
 				'employeur'=>'EMPLOYEUR',
-				'livr_adresse'=>'aDRESSE DE LIVRAISON',
+				'livr_adresse'=>'ADRESSE DE LIVRAISON',
 				'livr_code_postable'=>'CODE POSTAL (1)',
 
 				'livr_ville'=>'VILLE(1)',
@@ -97,8 +101,9 @@ class WPDoliFormAbonnement {
 				'isnewletter'=>"S'abonner à la
 				newsletter d'Alter Echos",
 				'issameadress'=>"Adresse de Facturation identique à l'adresse de livraison",
-				'private'=>'private');
-
+				'private'=>'private',
+				'contactname'=>'Contact Nom',
+				'contactfirstname'=>'Contact Prénom');
 	}
 	function getStyle () {
 		return 	$style= '
@@ -230,7 +235,7 @@ class WPDoliFormAbonnement {
 			</td>
 		</tr>
          <tr class='individualline'>
-			<td><label for="employeur">EMPLOYEUR</label> <strong>*</strong>
+			<td><label for="employeur">EMPLOYEUR</label> 
 			</td>
 			<td><input type="text" name="employeur"
 				value="<?=$this->employeur  ?>">
@@ -253,28 +258,28 @@ class WPDoliFormAbonnement {
 			</td>
 		</tr>
       
-		<tr class='compagnyline'>
+		<tr >
 			<td><label for="fac_adresse">ADRESSE DE FACTURATION</label> <strong>*</strong>
 			</td>
 			<td><input type="text" name="fac_adresse" id="fac_adresse"
 				value="<?=$this->fac_adresse  ?>">
 			</td>
 		</tr>
-		<tr class='compagnyline'>
+		<tr >
 			<td><label for="fac_code_postable">CODE POSTAL (1)</label> <strong>*</strong>
 			</td>
 			<td><input type="text" name="fac_code_postable" id="fac_code_postable"
 				value="<?=$this->fac_code_postable  ?>">
 			</td>
 		</tr>
-		<tr class='compagnyline'>
+		<tr >
 			<td><label for="fac_ville">VILLE (1)</label> <strong>*</strong>
 			</td>
 			<td><input type="text" name="fac_ville" id="fac_ville"
 				value="<?=$this->fac_ville  ?>">
 			</td>
 		</tr>
-		<tr class='compagnyline'>
+		<tr >
 			<td><label for="fac_pays">PAYS (1)</label> <strong>*</strong>
 			</td>
 			<td><select name="fac_pays" id='fac_pays'>
@@ -284,12 +289,30 @@ class WPDoliFormAbonnement {
 			</td>
 		</tr>
 		
-		<tr class='compagnyline' >
+		<tr  >
 
 			<td colspan='2'><input type="checkbox" name="issameadress"
-				id="issameadress" value="1"> <label for="issameadress">Adresse de Facturation identique à l'adresse de livraison</label> <!-- <textarea name="isnewletter">
+				id="issameadress" value="1"> <label for="issameadress">Adresse de Facturation identique à l'adresse de livraison</label>
+				 <!-- <textarea name="isnewletter">
+				 Vous souhaitez être livré à une autre adresse
 			<?=$this->issameadress ?>
+			
 		</textarea> -->
+			</td>
+		</tr>
+		
+		<tr>
+			<td><label for="contactname">Contact Nom</label> 
+			</td>
+			<td><input type="text" name="contactname" id="contactname"
+				value="<?=$this->contactname  ?>">
+			</td>
+		</tr>
+		<tr>
+			<td><label for="contactfirstname">Contact prénom</label> 
+			</td>
+			<td><input type="text" name="contactfirstname" id="contactfirstname"
+				value="<?=$this->contactfirstname  ?>">
 			</td>
 		</tr>
 		<tr>
@@ -299,7 +322,7 @@ class WPDoliFormAbonnement {
 				value="<?=$this->livr_adresse  ?>">
 			</td>
 		</tr>
-
+        
 
 
 		<tr>

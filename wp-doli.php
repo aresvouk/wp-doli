@@ -123,7 +123,7 @@ Class Wpdoli {
 		} else {
 			//var_dump('1111111');
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
-			//var_dump($rep,'111');exit;
+			
 			if(isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
 					$user = get_userdatabylogin($username);
@@ -149,7 +149,7 @@ Class Wpdoli {
 					}
 				}
 				 
-			} else {
+			} else {//var_dump($rep,'12221');exit;
 				$error = new WP_Error();
 				$error->add('incorrect_credentials', __('<strong>ERROR</strong>: Invalid username or incorrect password. Please try again.'));
 				return $error;
