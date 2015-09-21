@@ -54,10 +54,13 @@ class WPDoli_WC_Integration extends WC_Integration {
 
 	/** @var string Dolibarr entity we want webservice responses from */
 	public $wpdoli_settings_entity=1;
-
+  
 
 	/** @var int[] The distant Dolibarr version */
 	private $dolibarr_version='3.7.0';
+	
+	/** @var string site name of wordpress */
+	public $wpdoli_settings_site_name;
 	/**
 	 * Dolibarr webservices endpoints
 	 */
@@ -92,6 +95,7 @@ class WPDoli_WC_Integration extends WC_Integration {
 		//$this->sourceapplication    = $this->get_option( 'sourceapplication' );
 		$this->wpdoli_settings_user       = get_option( 'wpdoli_settings_user' );
 		$this->wpdoli_settings_password    = get_option( 'wpdoli_settings_password' );
+		$this->wpdoli_settings_site_name = get_option('wpdoli_settings_site_name');
 		//$this->wpdoli_settings_entity      = $this->get_option( 'wpdoli_settings_entity' );
 			
 			
@@ -193,20 +197,22 @@ class WPDoli_WC_Integration extends WC_Integration {
 		//liste des produits de dolibarr
 		try {
 			//$result = $soap_client->getListOfProductsOrServices($this->getCurrentAuth());
-			$parameters = array('authentication'=>$this->getCurrentAuth());
-			$WS_METHOD  = 'getListOfProductsOrServices';
+			$parameters = array('authentication'=>$this->getCurrentAuth(),
+					'id'=>$this->wpdoli_settings_site_name,
+					'filterproduct'=>array('tosell'=>1));
+			$WS_METHOD  = 'getListOfProductsOrServicesForCategory';
 			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
 				
 			//$result = $soap_client->getProductsForCategory($ws_auth,1);
 		} catch ( SoapFault $exception ) {
-			$this->logger->add('wpdoli','getListOfProductsOrServices request: ' . $exception->getMessage());
+			$this->logger->add('wpdoli','getListOfProductsOrServicesForCategory request: ' . $exception->getMessage());
 			$this->errors[] = 'Webservice error:' . $exc->getMessage();
 			// Do nothing.
 			return;
 		}
 
 		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {
-			$this->logger->add('wpdoli','getListOfProductsOrServices response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
+			$this->logger->add('wpdoli','getListOfProductsOrServicesForCategory response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
 			// Do nothing
 			return -1;
 		}

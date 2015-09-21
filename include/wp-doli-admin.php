@@ -49,9 +49,11 @@ class WPDoliAdmin {
 			register_setting('wpdoli_settings', 'wpdoli_settings_user');
 			register_setting('wpdoli_settings', 'wpdoli_settings_password');
 			register_setting('wpdoli_settings', 'wpdoli_settings_ws_key');
+			register_setting('wpdoli_settings', 'wpdoli_settings_site_name');
 				
 		
 			add_settings_section('wpdoli_settings_section', 'Paramétre de plugin dolibarr ', array($this, 'section_html'), 'wpdoli_settings');
+			add_settings_field('wpdoli_settings_site_name', 'Nom du site web', array($this, 'site_name'), 'wpdoli_settings', 'wpdoli_settings_section');
 			add_settings_field('wpdoli_settings_url', 'Url du web service dolibar', array($this, 'url_html'), 'wpdoli_settings', 'wpdoli_settings_section');
 			add_settings_field('wpdoli_settings_user', 'User', array($this, 'user_html'), 'wpdoli_settings', 'wpdoli_settings_section');
 			add_settings_field('wpdoli_settings_password', 'Password', array($this, 'password_html'), 'wpdoli_settings', 'wpdoli_settings_section');
@@ -59,6 +61,15 @@ class WPDoliAdmin {
 				
 		}
 		// definition des rendu
+		public function site_name()
+		{?>
+		<select name="wpdoli_settings_site_name">
+			<option> </option>
+  			<option value="alterechos.be" <?php echo get_option('wpdoli_settings_site_name')=='alterechos.be'?'selected':''?>>Alter echos </option> 
+  			<option value="echosducredit.be" <?php echo get_option('wpdoli_settings_site_name')=='echosducredit.be'?'selected':''?>> Echos du credit</option>
+		</select>
+		 <?php
+		}
 		public function url_html()
 		{?>
 		    <input type="text" name="wpdoli_settings_url" value="<?php echo get_option('wpdoli_settings_url')?>"/>

@@ -124,6 +124,7 @@ class WPDoliFormAbonnement {
 	function select_produit() {
 		$option = '';
 		if(is_array($this->produit)) {
+			$option .="<option ></option>";
 		 foreach($this->produit as $id=>$value)
 		 	$option .="<option value='$id'>$value</option>";
 		}
