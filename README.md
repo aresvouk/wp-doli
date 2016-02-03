@@ -20,7 +20,7 @@ Configuration
 Copyright et licence
 --------------------
 
-Ce logiciel est distribué sous la licence GNU GPL version 3 (voir fichier LICENSE ci-joint).
+Ce logiciel est distribué sous la licence GNU GPL version 2 (voir fichier LICENSE ci-joint).
 
 © 2016 — Cassiopea asbl
 

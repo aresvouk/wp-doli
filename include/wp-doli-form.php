@@ -157,57 +157,38 @@ class WPDoliFormAbonnement {
 			jQuery(".compagnyline").hide();
 		} else {
 			jQuery(".individualline").hide();
-			
 		}
 		jQuery("#radiocompany").click(function() {
 			jQuery(".individualline").hide();
 			jQuery(".compagnyline").show();
-         	//$("#typent_id").val(0);
-         	//$("#effectif_id").val(0);
-         	//$("#TypeName").html(document.formsoc.ThirdPartyName.value);
-         	document.formsoc.private.value=0;
-         });
+                        document.formsoc.private.value=0;
+                });
 		jQuery("#radioprivate").click(function() {
          	jQuery(".individualline").show();
          	jQuery(".compagnyline").hide();
-         	//jQuery("#typent_id").val(id_te_private);
-         	//jQuery("#effectif_id").val(id_ef15);
-         	//jQuery("#TypeName").html(document.formsoc.LastName.value);
          	document.formsoc.private.value=1;
-         });
+                });
 		jQuery("#issameadress").click(function() {
 			if( jQuery('input[name=issameadress]').is(':checked') ){
-				jQuery("#livr_code_postable").val(jQuery("#fac_code_postable").val());
-	         	jQuery("#livr_adresse").val(jQuery("#fac_adresse").val());
-	         	jQuery("#livr_ville").val(jQuery("#fac_ville").val());
-	         	jQuery("#livr_pays").val(jQuery("#fac_pays").val());
-
-	         	jQuery("#contactfirstname").val(jQuery("#first_name").val());
-	         	jQuery("#contactname").val(jQuery("#last_name").val());
-	         	
-	         	
+                                jQuery("#livr_code_postable").val(jQuery("#fac_code_postable").val());
+                                jQuery("#livr_adresse").val(jQuery("#fac_adresse").val());
+                                jQuery("#livr_ville").val(jQuery("#fac_ville").val());
+                                jQuery("#livr_pays").val(jQuery("#fac_pays").val());
+                                jQuery("#contactfirstname").val(jQuery("#first_name").val());
+                                jQuery("#contactname").val(jQuery("#last_name").val());
 			} else {
-
 				jQuery("#livr_code_postable").val('');
-	         	jQuery("#livr_adresse").val('');
-	         	jQuery("#livr_ville").val('');
-	         	jQuery("#livr_pays").val('');
-
-	         	jQuery("#contactfirstname").val('');
-	         	jQuery("#contactname").val('');
-	         	
-	         	
-			    
+                                jQuery("#livr_adresse").val('');
+                                jQuery("#livr_ville").val('');
+                                jQuery("#livr_pays").val('');
+                                jQuery("#contactfirstname").val('');
+                                jQuery("#contactname").val('');
 			}
-         	//jQuery("#typent_id").val(id_te_private);
-         	//jQuery("#effectif_id").val(id_ef15);
-         	//jQuery("#TypeName").html(document.formsoc.LastName.value);
-         	
          });
 		
 });
- </script>
- <?php $tabLabel=self::getAttributsLable()?>
+</script>
+<?php $tabLabel=self::getAttributsLable()?>
 <form action="<?php  $_SERVER['REQUEST_URI'] ?>" method="post"
 	name='formsoc'>
 		<div id="selectthirdpartytype">
@@ -463,7 +444,7 @@ class WPDoliFormAbonnement {
 				$remoteIp = $_SERVER['REMOTE_ADDR'];
 			}
 			$remoteIp = $_SERVER['REMOTE_ADDR'];
-			$recaptcha = new \ReCaptcha1\ReCaptcha1($secret);
+			$recaptcha = new \ReCaptcha\ReCaptcha($secret);
 			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $remoteIp);
 			//var_dump($resp,'2emereponse');
 			if (is_object($resp) && $resp->isSuccess()) {
@@ -525,8 +506,6 @@ class WPDoliFormAbonnement {
 					//'user_url'      =>   $this->website,
 					'first_name'    =>   $this->first_name,
 					'last_name'     =>   $this->last_name,
-					//'nickname'      =>   $this->nickname,
-					//'description'   =>   $this->bio,
 			);
 			//$user = wp_insert_user( $userdata );
 			$re = $this->dolibarr->dolibarr_create_thirdparty($this->getAttributs());
@@ -565,21 +544,17 @@ class WPDoliFormAbonnement {
 		//$this->website    =   esc_url( $this->website );
 		$this->first_name =   sanitize_text_field($this->first_name );
 		$this->last_name  =   sanitize_text_field($this->last_name  );
-		//$this->nickname   =   sanitize_text_field( $this->nickname );
-		//$this->bio        =   esc_textarea( $this->bio  );
 
 	}
 	function custom_registration_function() {
 		$ok = -1;
 		if ( isset($_POST['submit'] ) ) {
 			$this->setAttributs($_POST);
-			//var_dump($this->getAttributs(),'alll');
 			$this->registration_validation();
 			$this->sanitize();
 			// call @function complete_registration to create the user
 			// only when no WP_error is found
 			$ok = $this->complete_registration();
-			//var_dump($ok);
 				
 		}
 
@@ -604,7 +579,6 @@ class WPDoliFormAbonnement {
 
 			$response = $this->xrvel_login_recaptcha_open_url($url);
 			$json_response = json_decode($response, true);
-			//var_dump($json_response,'1ere reponse');
 
 			// 			if (isset($json_response['success']) && true !== $json_response['success']) {
 			// 				header('Location: wp-login.php?login_recaptcha_err=1');
@@ -631,7 +605,7 @@ class WPDoliFormAbonnement {
 			curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$response = curl_exec($ch);
-			curl_close($ch); //var_dump($url,'ooo');
+			curl_close($ch);
 		} else {
 			$response = file_get_contents($url);
 		}
