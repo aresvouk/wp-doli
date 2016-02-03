@@ -446,7 +446,6 @@ class WPDoliFormAbonnement {
 			$remoteIp = $_SERVER['REMOTE_ADDR'];
 			$recaptcha = new \ReCaptcha\ReCaptcha($secret);
 			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $remoteIp);
-			//var_dump($resp,'2emereponse');
 			if (is_object($resp) && $resp->isSuccess()) {
 				// verified!
 			} else {
@@ -520,9 +519,8 @@ class WPDoliFormAbonnement {
 	public function setAttributs($arrAttributs) {
 		if(!is_array($arrAttributs))
 			return;
-		//var_dump($this->attributs);
 		foreach($this->attributs as $attrName)
-		{ //var_dump(isset($this->attributs[$name]),$name);
+		{
 			if(isset($arrAttributs[$attrName])){
 				$this->$attrName=$arrAttributs[$attrName];
 					

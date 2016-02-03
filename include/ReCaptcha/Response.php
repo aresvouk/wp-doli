@@ -51,7 +51,6 @@ class Response
      */
     public static function fromJson($json)
     {
-        var_dump($json);
         $responseData = json_decode($json, true);
 
         if (!$responseData) {

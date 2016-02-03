@@ -144,7 +144,7 @@ class Dolibarr_Thirdparty1 {
 		}
 	}
 	public function getAttributsValues() {
-		$data =array();var_dump($this->getAttributs());exit;
+		$data = array();
 		foreach ($this->getAttributs() as $attr) {
 			$data[$this->$attr] = $this->$attr;
 		}

@@ -91,9 +91,7 @@ class ReCaptcha
         }
 
         $params = new RequestParameters($this->secret, $response, $remoteIp, self::VERSION);
-        var_dump($params);
         $rawResponse = $this->requestMethod->submit($params);
-        var_dump($rawResponse);
         return Response::fromJson($rawResponse);
     }
 }
