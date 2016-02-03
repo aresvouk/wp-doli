@@ -21,7 +21,7 @@ class WPDoliFormAbonnement {
 	public $fac_ville;
 	public $fac_pays;
 	public $password_confirme;
-	public $code_coupon;
+	public $communication;
 	public $isnewletter;
 	public $siteweb;
 	public $num_tva;
@@ -64,17 +64,18 @@ class WPDoliFormAbonnement {
 				'fac_ville',
 				'fac_pays',
 				'password_confirme',
-				'code_coupon',
+				'communication',
 				'website',
 				'num_tva',
 				'isnewletter',
 				'issameadress',
 				'private',
 				'contactname',
-				'contactfirstname');
+				'contactfirstname',
+				'docpapier');
 	}
 
-	function  getAttributsLable() {
+	public static function  getAttributsLable() {
 		return   array(
 				'produit_id'=>'Produit',
 				'username'=>'Login',
@@ -96,14 +97,15 @@ class WPDoliFormAbonnement {
 				'fac_ville'=>'VILLE (2)',
 				'fac_pays'=>'PAYS (2)',
 				'password_confirme'=>'',
-				'code_coupon'=>'COUPON CODE ',
+				'communication'=>'Communication',
 				'num_tva'=>'Numéro TVA',
 				'isnewletter'=>"S'abonner à la
 				newsletter d'Alter Echos",
 				'issameadress'=>"Adresse de Facturation identique à l'adresse de livraison",
 				'private'=>'private',
 				'contactname'=>'Contact Nom',
-				'contactfirstname'=>'Contact Prénom');
+				'contactfirstname'=>'Contact Prénom',
+				'docpapier'=>'Je désire recevoir les factures sous format papier');
 	}
 	function getStyle () {
 		return 	$style= '
@@ -179,14 +181,21 @@ class WPDoliFormAbonnement {
 	         	jQuery("#livr_adresse").val(jQuery("#fac_adresse").val());
 	         	jQuery("#livr_ville").val(jQuery("#fac_ville").val());
 	         	jQuery("#livr_pays").val(jQuery("#fac_pays").val());
+
+	         	jQuery("#contactfirstname").val(jQuery("#first_name").val());
+	         	jQuery("#contactname").val(jQuery("#last_name").val());
 	         	
-			  
+	         	
 			} else {
 
 				jQuery("#livr_code_postable").val('');
 	         	jQuery("#livr_adresse").val('');
 	         	jQuery("#livr_ville").val('');
 	         	jQuery("#livr_pays").val('');
+
+	         	jQuery("#contactfirstname").val('');
+	         	jQuery("#contactname").val('');
+	         	
 	         	
 			    
 			}
@@ -198,7 +207,7 @@ class WPDoliFormAbonnement {
 		
 });
  </script>
- <?php //var_dump($this->livr_pays);?>
+ <?php $tabLabel=self::getAttributsLable()?>
 <form action="<?php  $_SERVER['REQUEST_URI'] ?>" method="post"
 	name='formsoc'>
 		<div id="selectthirdpartytype">
@@ -223,7 +232,7 @@ class WPDoliFormAbonnement {
 			<td><label for="last_name">Nom <strong>*</strong>
 			</label>
 			</td>
-			<td><input type="text" name="last_name"
+			<td><input type="text" name="last_name" id="last_name"
 				value="<?=$this->last_name  ?>">
 			</td>
 		</tr>
@@ -231,7 +240,7 @@ class WPDoliFormAbonnement {
 			<td><label for="firstname">Prénom<strong>*</strong>
 			</label>
 			</td>
-			<td><input type="text" name="first_name"
+			<td><input type="text" name="first_name" id="first_name"
 				value="<?=$this->first_name  ?>">
 			</td>
 		</tr>
@@ -377,13 +386,22 @@ class WPDoliFormAbonnement {
 			</td>
 		</tr>
 		<tr>
-			<td><label for="code_coupon">COUPON CODE</label>
+			<td><label for="communication"><?=$tabLabel['communication']?>  </label>
 			</td>
-			<td><input type="text" name="code_coupon"
-				value="<?=$this->code_coupon ?>">
+			<td> <textarea  type="text" name="communication" maxlength="500"
+				> <?=$this->communication ?> </textarea>
 			</td>
 		</tr>
+		
 		<tr>
+
+			<td colspan='2'><input type="checkbox" name="docpapier"
+				id="docpapier" value="1"> <label for="docpapier"><?=$tabLabel['docpapier']?></label> <!-- <textarea name="isnewletter">
+			<?=$this->docpapier ?>
+		</textarea> -->
+			</td>
+		</tr>
+         <tr>
 
 			<td colspan='2'><input type="checkbox" name="isnewletter"
 				id="isnewletter" value="1"> <label for="isnewletter">S'abonner à la
@@ -392,7 +410,7 @@ class WPDoliFormAbonnement {
 		</textarea> -->
 			</td>
 		</tr>
-
+		
 	</table>
 	<div class="g-recaptcha"
 		data-sitekey="<?=htmlentities(trim($siteKey)) ?>"></div>
@@ -404,24 +422,15 @@ class WPDoliFormAbonnement {
 <?php 
 	}
 	function registration_validation(  )  {
-		$arrRequiredParticulier = array('email','first_name','last_name','tel','livr_adresse','livr_code_postable','livr_pays');
-		$arrRequiredCompagny = array('email','last_name','tel','livr_adresse','fac_adresse','livr_code_postable','livr_pays','fac_pays','fac_code_postable','fac_ville');
+		$arrRequiredParticulier = array('produit_id','email','first_name','last_name','tel','livr_adresse','livr_code_postable','livr_pays');
+		$arrRequiredCompagny = array('produit_id','email','last_name','tel','livr_adresse','fac_adresse','livr_code_postable','livr_pays','fac_pays','fac_code_postable','fac_ville');
 		
-		$labels = $this->getAttributsLable();
+		$labels = self::getAttributsLable();
 		$arrRequired = ($this->private)?$arrRequiredParticulier:$arrRequiredCompagny;
 		foreach ($arrRequired as $attrName) {
 			if(empty( $this->$attrName )) $this->reg_errors->add($attrName, $labels[$attrName].'  Required');
 		}
-		// 		if (   empty( $this->email ) || empty( $this->first_name )
-		// 				|| empty( $this->last_name ) || empty( $this->tel ) || empty( $this->livr_adresse )
-		// 				|| empty( $this->fac_adresse ) || empty( $this->livr_code_postable )|| empty( $this->livr_pays )
-		// 				|| empty( $this->fac_pays ) || empty( $this->fac_code_postable )|| empty( $this->fac_ville )
-		// 		) {
-		// 			$this->reg_errors->add('field', 'Required form field is missing');
-		// 		}
-		// 		if ( 4 > strlen( $this->username ) ) {
-		// 			$this->reg_errors->add( 'username_length', 'Username too short. At least 4 characters is required' );
-		// 		}
+		
 		if ( username_exists( $this->email ) )
 			$this->reg_errors->add('user_name', 'Sorry, that Email already exists!');
 		if ( ! validate_username( $this->email ) ) {
@@ -465,7 +474,7 @@ class WPDoliFormAbonnement {
 					$error .= $code;
 				}
 				//var_dump($_SERVER["REMOTE_ADDR"], $remoteIp, $_POST["g-recaptcha-response"], $resp);
-				$this->reg_errors->add('invalid_captcha', $error);
+			//	$this->reg_errors->add('invalid_captcha', $error);
 			}
 		}
 		/*

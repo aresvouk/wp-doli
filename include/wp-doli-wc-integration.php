@@ -28,7 +28,7 @@ require_once 'abstract-wc-integration.php';
 require_once 'class-wc-logger.php';
 require_once NUSOAP_PATH.'/nusoap.php';		// Include SOAP
 require_once 'wpdoli-dolibarr-soap-elements.php';
-
+require_once 'Drewm/MailChimp.php';
 
 /**
  * Wpdoli settings WooCommerce integration
@@ -61,6 +61,12 @@ class WPDoli_WC_Integration extends WC_Integration {
 	
 	/** @var string site name of wordpress */
 	public $wpdoli_settings_site_name;
+	
+	/** @var string id of lis subscribers of mailchimp */
+	private $wpdoli_settings_listid_mailchimp='';
+	
+	/** @var string key to connect of  mailchimp*/
+	public $wpdoli_settings_key_mailchimp;
 	/**
 	 * Dolibarr webservices endpoints
 	 */
@@ -96,6 +102,9 @@ class WPDoli_WC_Integration extends WC_Integration {
 		$this->wpdoli_settings_user       = get_option( 'wpdoli_settings_user' );
 		$this->wpdoli_settings_password    = get_option( 'wpdoli_settings_password' );
 		$this->wpdoli_settings_site_name = get_option('wpdoli_settings_site_name');
+		$this->wpdoli_settings_listid_mailchimp=get_option('wpdoli_settings_listid_mailchimp');
+		
+		$this->wpdoli_settings_key_mailchimp=get_option('wpdoli_settings_key_mailchimp');
 		//$this->wpdoli_settings_entity      = $this->get_option( 'wpdoli_settings_entity' );
 			
 			
@@ -110,10 +119,10 @@ class WPDoli_WC_Integration extends WC_Integration {
 		$urlService = $this->wpdoli_settings_url .$service ;
 		try {
 			$soap_client = new  nusoap_client($urlService);
-			if ($soapclient)
+			if ($soap_client)
 			{
-				$soapclient->soap_defencoding='UTF-8';
-				$soapclient->decodeUTF8(false);
+				$soap_client->soap_defencoding='UTF-8';
+				$soap_client->decodeUTF8(false);
 			}
 
 		} catch ( SoapFault $exception ) {
@@ -201,9 +210,9 @@ class WPDoli_WC_Integration extends WC_Integration {
 					'id'=>$this->wpdoli_settings_site_name,
 					'filterproduct'=>array('tosell'=>1));
 			$WS_METHOD  = 'getListOfProductsOrServicesForCategory';
+			
 			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
-				
-			//$result = $soap_client->getProductsForCategory($ws_auth,1);
+			//var_dump($result);exit;//$result = $soap_client->getProductsForCategory($ws_auth,1);
 		} catch ( SoapFault $exception ) {
 			$this->logger->add('wpdoli','getListOfProductsOrServicesForCategory request: ' . $exception->getMessage());
 			$this->errors[] = 'Webservice error:' . $exc->getMessage();
@@ -318,6 +327,8 @@ class WPDoli_WC_Integration extends WC_Integration {
 	 * @return array() $result The SOAP response
 	 */
 	public function dolibarr_create_thirdparty( $arrThirdparty ) {
+		
+          
 		//$ref        = get_user_meta( $user_id, 'billing_company', true );
 		$service = self::THIRDPARTY_ENDPOINT;
 		$wsdl_mode = self::WSDL_MODE;
@@ -362,7 +373,7 @@ class WPDoli_WC_Integration extends WC_Integration {
 				'date_creation'=> date(),
 				'date_modification'=> date(),
 				'note_private'=> null,
-				'note_public'=> null,
+				'note_public'=> $arrThirdparty['communication'],
 				'province_id'=> null,
 				'country_id'=> null,
 		
@@ -379,51 +390,13 @@ class WPDoli_WC_Integration extends WC_Integration {
 				'profid6'=> null,
 				'capital'=> null,
 				'vat_used'=> null,
-				'vat_number'=> null
+				'vat_number'=> null,
+				'communication'=>  $arrThirdparty['communication'],
+				'docpapier'=>  $arrThirdparty['docpapier'],
+				'isnewletter'=>  $arrThirdparty['isnewletter']
 		);
 		
-		
-		
-		// 		$new_thirdparty->ref        = $arrThirdparty['last_name']; // Company name or individual last name
-		// 		$new_thirdparty->individual = $individual; // Individual
-		// 		$new_thirdparty->firstname = $arrThirdparty['first_name'];
-		// 		$new_thirdparty->status    = '1'; // Active
-		// 		$new_thirdparty->client    = '1'; // Is a client
-		// 		$new_thirdparty->supplier  = '0'; // Is not a supplier
-		// 		$new_thirdparty->address = $arrThirdparty['livr_adresse'];
-		// 		$new_thirdparty->zip =$arrThirdparty['livr_code_postable'];
-		// 		$new_thirdparty->town = $arrThirdparty['livr_ville'];
-		// 		$new_thirdparty->country_code = $arrThirdparty['livr_pays'];
-		// 		$new_thirdparty->phone =$arrThirdparty['tel'];
-		// 		$new_thirdparty->email =$arrThirdparty['email'];
-		// 		$new_thirdparty->ref_ext = uniqid();
-		// 		$new_thirdparty->fk_user_author = 1;
-		// 		$new_thirdparty->customer_code = '';
-		// 		$new_thirdparty->customer_code_accountancy = null;
-		// 		$new_thirdparty->supplier_code_accountancy = null;
-		// 		$new_thirdparty->date_creation = date();
-		// 		$new_thirdparty->date_modification = date();
-		// 		$new_thirdparty->note_private = null;
-		// 		$new_thirdparty->note_public = null;
-		// 		$new_thirdparty->province_id= null;
-		// 		$new_thirdparty->country_id= null;
-
-		// 		$new_thirdparty->country= null;
-
-		// 		$new_thirdparty->fax= null;
-
-		// 		$new_thirdparty->url= null;
-		// 		$new_thirdparty->profid1= null;
-		// 		$new_thirdparty->profid2= null;
-		// 		$new_thirdparty->profid3= null;
-		// 		$new_thirdparty->profid4= null;
-		// 		$new_thirdparty->profid5= null;
-		// 		$new_thirdparty->profid6= null;
-		// 		$new_thirdparty->capital= null;
-		// 		$new_thirdparty->vat_used= null;
-		// 		$new_thirdparty->vat_number= null;
-
-
+	
 
 
 		try {
@@ -445,13 +418,28 @@ class WPDoli_WC_Integration extends WC_Integration {
 		}
 		
 		if ( ! ( 'OK' == $result['result']['result_code'] ) || $result ==false) {
-			$this->logger->add(
+			/* $this->logger->add(
 					'wpdoli',
 					'createThirdParty response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']
-			);
+			); */
 			//var_dump($result);exit;
 			// Do nothing
 			return -1;
+		}
+		// ajout au mailChimp
+		if(isset($arrThirdparty['isnewletter']) && $arrThirdparty['isnewletter'] > 0) {
+			$MailChimp = new \Drewm\MailChimp($this->wpdoli_settings_key_mailchimp);
+			//print_r($MailChimp->call('lists/list'));
+			$result = $MailChimp->call('lists/subscribe', array(
+					'id'                => $this->wpdoli_settings_listid_mailchimp,
+					'email'             => array('email'=>$arrThirdparty['email']),
+					'merge_vars'        => array('FNAME'=>$arrThirdparty['first_name'], 'LNAME'=>$arrThirdparty['last_name']),
+					'double_optin'      => false,
+					'update_existing'   => true,
+					'replace_interests' => false,
+					'send_welcome'      => false,
+			));
+			//print_r($result);
 		}
 		return $result;
 	}

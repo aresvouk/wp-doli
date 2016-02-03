@@ -1,17 +1,17 @@
 <?php
 /*
- Plugin Name: WPDoli
+Plugin Name: WPDoli
 Plugin URI: https://github.com/tonin/abonibarr
-Description: Integration de wordpress dans dolibrr
-Version: 0.1
-Author: cassiopea
+Description: Création de client Dolibarr par formulaire WordPress
+Version: 0.2
+Author: Cassiopea asbl
 Author URI: http://www.cassiopea.org/
 License: GPL-3.0+
 Text Domain: WPDoli
 Domain Path: /languages
 */
 // Initialize constants.
-define( 'WPDOLI_VERSION', '0.1' );
+define( 'WPDOLI_VERSION', '0.2' );
 define( 'WPDOLI_DEBUG', false );
 if ( false === extension_loaded( 'soap' ) ) {
 	esc_html_e( __( 'This plugin needs SOAP PHP extension.', 'doliwoo' ) );
@@ -22,8 +22,6 @@ define( 'WPDOLI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPDOLI_PATH_INC', plugin_dir_path( __FILE__ ).'include/');
 define( 'NUSOAP_PATH', plugin_dir_path( __FILE__ ).'include/nusoap/lib/');
 #define( 'GOOGLE_PATH', plugin_dir_path( __FILE__ ).'include/google/');
-
-//require(plugin_dir_path( __FILE__ ).'include/autoload.php');
 require(plugin_dir_path( __FILE__ ).'include/autoload1.php');
 
 
@@ -40,7 +38,6 @@ Class Wpdoli {
 		//add_action( 'plugins_loaded', 'wpdoli_load_textdomain' );
 		register_activation_hook( __FILE__, array($this,'wpdoli_install' ));
 		register_uninstall_hook(__FILE__, array($this,'wpdoli_uninstall'));
-
 		wp_enqueue_script('recaptcha-js', 'https://www.google.com/recaptcha/api.js', null, \ReCaptcha1\ReCaptcha1::VERSION);
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		//add_action ('wp_authenticate' , array($this,'check_custom_authentication'));
@@ -52,7 +49,6 @@ Class Wpdoli {
 		include_once WPDOLI_PATH_INC.'wp-doli-shortcode.php';
 		new WPDoliAdmin($this->dolibarr);
 		new WPDoliShortcode($this->dolibarr);
-
 	}
 	/**
 	 * Filter translation file.
@@ -72,22 +68,17 @@ Class Wpdoli {
 	public  function wpdoli_install()
 	{
 		global $wpdb;
-
-		//$wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}zero_newsletter_email (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255) NOT NULL);");
 	}
-
+	
 	public  function wpdoli_uninstall()
 	{
 		global $wpdb;
-
-		//$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}zero_newsletter_email;");
 	}
 	public function add_admin_menu()
 	{
-		add_menu_page('Plugin d\'integration de dolibarr', 'wpdoli', 'manage_options', 'wpdoli', array($this, 'menu_html'));
+		add_menu_page('Plugin d\'intégration à Dolibarr', 'WPDoli', 'manage_options', 'WPDoli', array($this, 'menu_html'));
 	}
-
-
+	
 	public function menu_html()
 	{
 		echo '<h1>'.get_admin_page_title().'</h1>';
@@ -123,7 +114,6 @@ Class Wpdoli {
 		} else {
 			//var_dump('1111111');
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
-			
 			if(isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
 					$user = get_userdatabylogin($username);
@@ -137,7 +127,7 @@ Class Wpdoli {
 							'user_email' => is_email($username)?$username:null
 					);
 					$user_id = wp_insert_user( $userdata ) ;
-
+					
 					//On success
 					if( !is_wp_error($user_id) ) {
 						$user = get_userdatabylogin($username);
@@ -151,7 +141,7 @@ Class Wpdoli {
 				 
 			} else {//var_dump($rep,'12221');exit;
 				$error = new WP_Error();
-				$error->add('incorrect_credentials', __('<strong>ERROR</strong>: Invalid username or incorrect password. Please try again.'));
+				$error->add('incorrect_credentials', __('<strong>ERROR</strong>:'.$rep ["result"]["result_label"]));
 				return $error;
 			}
 			 
@@ -170,6 +160,6 @@ Class Wpdoli {
 	 
 		// password changed...
 	}
-}//3fsdxy7q
+}
 
 new Wpdoli();

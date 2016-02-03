@@ -3,8 +3,7 @@
 class WPDoliIntegration {
 	/** @var WC_Logger Logging */
 	public $logger;
-	
-	
+
 	/** @var string Webservice endpoint */
 	private $ws_endpoint;
 	
@@ -18,7 +17,7 @@ class WPDoliIntegration {
 	const THIRDPARTY_ENDPOINT = 'server_thirdparty.php';
 	const PRODUCT_ENDPOINT    = 'server_productorservice.php';
 	const OTHER_ENDPOINT      = 'server_other.php';
-	const ABON_ENDPOINT      = 'server_abonnement.php';
+	const ABON_ENDPOINT       = 'server_abonnement.php';
 	const WSDL_MODE           = '?wsdl';
 	
 	/**
