@@ -26,6 +26,8 @@ require(plugin_dir_path( __FILE__ ).'include/autoload.php');
 include_once WPDOLI_PATH_INC.'wp-doli-wc-integration.php';
 
 Class Wpdoli {
+	const DOLIBARR_ROLE ='subscriber_dolibarr';
+	//const DOLIBARR_ROLE_LABEL =__( 'subscriber of dolibarr' );
 	public $dolibarr;
 	function __construct() {
 		$this->init();
@@ -47,6 +49,7 @@ Class Wpdoli {
 		include_once WPDOLI_PATH_INC.'wp-doli-shortcode.php';
 		new WPDoliAdmin($this->dolibarr);
 		new WPDoliShortcode($this->dolibarr);
+		$this->createRole();
 	}
 	/**
 	 * Filter translation file.
@@ -83,17 +86,19 @@ Class Wpdoli {
 	}
 	function check_custom_authentication ($user, $username, $password) {
 		global $wpdb;
+		$error = new WP_Error();
 		if (is_a($user, 'WP_User')) {
 			return $user;
 		}
-		// Determine if user a local admin
-		$local_admin = false;
-		$user_obj = get_user_by('login', $username);
-		if (user_can($user_obj, 'update_core')) $local_admin = true;
-
+// 		$rolename ='subscriber';
+// 		var_dump($rolename);
+// 		$role = get_role($rolename);
+// 		var_dump($role);exit();
+		
+		
 		if (empty($username) || empty ($password)) {
 			//create new error object and add errors to it.
-			$error = new WP_Error();
+			
 
 			if (empty($username)) { //No email
 				$error->add('empty_username', __('<strong>ERROR</strong>: Email field is empty.'));
@@ -104,11 +109,26 @@ Class Wpdoli {
 			}
 			return $error;
 		}
-		if ($local_admin) {
+		
+		
+		$role_allow = false;
+		$user_obj = get_user_by('login', $username);
+		if(is_object($user_obj)) {
+			//$error->add('empty_username', __("<strong>ERROR</strong>: The user doesn't exist."));
+			//return $error;
+			$role = implode(', ', $user_obj->roles);
+			if($role <> self::DOLIBARR_ROLE) $role_allow = true;
+		}
+		
+		
+		// Si c'est pas le profile de lecteur de dolibarr
+		// authentication normale de wp
+		if ($role_allow) {
 			return wp_authenticate_username_password($user, $username, $password);
 			 
-		} else {
+		} else { // verifier dans dolibarr
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
+			//var_dump($rep);exit;
 			if (isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
 					$user = get_userdatabylogin($username);
@@ -119,7 +139,8 @@ Class Wpdoli {
 					$userdata = array(
 							'user_login'  =>  $username,
 							'user_pass'   =>  $password ,
-							'user_email' => is_email($username)?$username:null
+							'user_email' => is_email($username)?$username:null,
+							'role' => self::DOLIBARR_ROLE
 					);
 					$user_id = wp_insert_user( $userdata ) ;
 					
@@ -150,6 +171,16 @@ Class Wpdoli {
                     $this->dolibarr->dolibarr_setPassword($user->user_login,$new_pass);
                     // password changed...
                 }
+	}
+	function createRole() {
+		$result = add_role(
+				self::DOLIBARR_ROLE,
+				__( 'subscriber of dolibarr' ),
+				array(
+						'read'         => true,  // true allows this capability
+						'level_0' => true, // Use false to explicitly deny
+				)
+		);
 	}
 }
 
