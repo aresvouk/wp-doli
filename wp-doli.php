@@ -119,6 +119,7 @@ Class Wpdoli {
 			$role = implode(', ', $user_obj->roles);
 			if($role <> self::DOLIBARR_ROLE) $role_allow = true;
 		}
+<<<<<<< HEAD
 		//svar_dump($user_obj->ID);exit;
 		//$resp = $this->createTransaction($user_obj->ID, 8);
 		//var_dump($resp,'response');exit;
@@ -126,10 +127,18 @@ Class Wpdoli {
 		// authentication normale de wp
 		if ($role_allow) {
 			//if ($role_allow) {
+=======
+		
+		
+		// Si c'est pas le profile de lecteur de dolibarr
+		// authentication normale de wp
+		if ($role_allow) {
+>>>>>>> branch 'master' of ssh://git@github.com/aresvouk/wp-doli.git
 			return wp_authenticate_username_password($user, $username, $password);
 			 
 		} else { // verifier dans dolibarr
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
+			//var_dump($rep);exit;
 			if (isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
 					$user = get_userdatabylogin($username);
@@ -216,6 +225,7 @@ public function createTransaction($user_id,$product_id) {
 		
 	
 	}
+
 }
 
 new Wpdoli();
