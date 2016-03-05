@@ -26,6 +26,8 @@ require(plugin_dir_path( __FILE__ ).'include/autoload.php');
 include_once WPDOLI_PATH_INC.'wp-doli-wc-integration.php';
 
 Class Wpdoli {
+	const DOLIBARR_ROLE ='subscriber_dolibarr';
+	//const DOLIBARR_ROLE_LABEL =__( 'subscriber of dolibarr' );
 	public $dolibarr;
 	function __construct() {
 		$this->init();
@@ -47,6 +49,7 @@ Class Wpdoli {
 		include_once WPDOLI_PATH_INC.'wp-doli-shortcode.php';
 		new WPDoliAdmin($this->dolibarr);
 		new WPDoliShortcode($this->dolibarr);
+		$this->createRole();
 	}
 	/**
 	 * Filter translation file.
@@ -83,17 +86,19 @@ Class Wpdoli {
 	}
 	function check_custom_authentication ($user, $username, $password) {
 		global $wpdb;
+		$error = new WP_Error();
 		if (is_a($user, 'WP_User')) {
 			return $user;
 		}
-		// Determine if user a local admin
-		$local_admin = false;
-		$user_obj = get_user_by('login', $username);
-		if (user_can($user_obj, 'update_core')) $local_admin = true;
-
+// 		$rolename ='subscriber';
+// 		var_dump($rolename);
+// 		$role = get_role($rolename);
+// 		var_dump($role);exit();
+		
+		
 		if (empty($username) || empty ($password)) {
 			//create new error object and add errors to it.
-			$error = new WP_Error();
+			
 
 			if (empty($username)) { //No email
 				$error->add('empty_username', __('<strong>ERROR</strong>: Email field is empty.'));
@@ -104,10 +109,26 @@ Class Wpdoli {
 			}
 			return $error;
 		}
-		if ($local_admin) {
+		
+		
+		$role_allow = false;
+		$user_obj = get_user_by('login', $username);
+		if(is_object($user_obj)) {
+			//$error->add('empty_username', __("<strong>ERROR</strong>: The user doesn't exist."));
+			//return $error;
+			$role = implode(', ', $user_obj->roles);
+			if($role <> self::DOLIBARR_ROLE) $role_allow = true;
+		}
+		//svar_dump($user_obj->ID);exit;
+		//$resp = $this->createTransaction($user_obj->ID, 8);
+		//var_dump($resp,'response');exit;
+		// Si c'est pas le profile de lecteur de dolibarr
+		// authentication normale de wp
+		if ($role_allow) {
+			//if ($role_allow) {
 			return wp_authenticate_username_password($user, $username, $password);
 			 
-		} else {
+		} else { // verifier dans dolibarr
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
 			if (isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
@@ -119,12 +140,15 @@ Class Wpdoli {
 					$userdata = array(
 							'user_login'  =>  $username,
 							'user_pass'   =>  $password ,
-							'user_email' => is_email($username)?$username:null
+							'user_email' => is_email($username)?$username:null,
+							'role' => self::DOLIBARR_ROLE
 					);
 					$user_id = wp_insert_user( $userdata ) ;
 					
 					//On success
 					if (!is_wp_error($user_id)) {
+						$resp = $this->createTransaction($user_id, 8);
+						//var_dump($resp,'response');exit;
 						$user = get_userdatabylogin($username);
 						return $user;
 					} else {
@@ -147,9 +171,50 @@ Class Wpdoli {
 	 	if (user_can($user, 'update_core')) $local_admin = true;
 	 	
 	 	if (!$local_admin) {
-                    $this->dolibarr->dolibarr_setPassword($user->user_login,$new_pass);
+             //       $this->dolibarr->dolibarr_setPassword($user->user_login,$new_pass);
                     // password changed...
                 }
+	}
+	function createRole() {
+		$result = add_role(
+				self::DOLIBARR_ROLE,
+				__( 'subscriber of dolibarr' ),
+				array(
+						'read'         => true,  // true allows this capability
+						'level_0' => true, // Use false to explicitly deny
+				)
+		);
+	}
+	
+public function createTransaction($user_id,$product_id) {
+		global $wpdb;
+		$table = "{$wpdb->prefix}mepr_transactions";
+		
+		$data = array(
+				//'id'              => 0,
+				'amount'          => 0.00,
+				'total'           => 0.00,
+				'tax_amount'      => 0.00,
+				'tax_rate'        => 0.00,
+				'tax_desc'        => '',
+				'tax_class'       => 'standard',
+				'user_id'         => $user_id,
+				'product_id'      => $product_id,
+				'coupon_id'       => 0,
+				'trans_num'       => 'mp-txn-'.uniqid(),
+				'status'          => "confirmed",
+				'txn_type'        => "payment",
+				'response'        => '',
+				'gateway'         => 'MeprPayPalGateway',
+				'prorated'        => null,
+				'ip_addr'         => $_SERVER['REMOTE_ADDR'],
+				'created_at'      => null,
+				'expires_at'      => null, // 0 = lifetime, null = default expiration for membership
+				'subscription_id' => 0
+		);
+		return $wpdb->insert( $table,$data );
+		
+	
 	}
 }
 
