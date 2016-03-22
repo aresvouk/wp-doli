@@ -149,8 +149,61 @@ class WPDoliFormAbonnement {
 
 		echo  $this->getStyle();
 		?>
-<script type="text/javascript">
- jQuery(document).ready(function(){
+<script>
+if (typeof jQuery == 'undefined') { 
+	function r(f){/in/.test(document.readyState)?setTimeout(r,9,f):f()}
+	r(function(){
+		var individualLine = document.getElementsByClassName("individualline");
+		var compagnyLine = document.getElementsByClassName("compagnyline");
+		function show (lineClass) {
+			for (i = 0; i < lineClass.length; i++)  {
+				lineClass[i].style.display = '';
+			}
+		}
+		function hide (lineClass) {
+			for (i = 0; i < lineClass.length; i++)  {
+				lineClass[i].style.display = 'none';
+			}
+		}
+		var is_private=<?=is_null($this->private)?0:$this->private?>;
+		if (is_private) {
+			hide(compagnyLine);
+			show(individualLine);
+		} else {
+			hide(individualLine);
+		}
+		document.getElementById("radiocompany").addEventListener('click', function(event) {
+			hide(individualLine);
+			show(compagnyLine);
+            document.formsoc.private.value=0;
+        }, false);
+		document.getElementById("radioprivate").addEventListener('click', function(event) {
+			hide(compagnyLine);
+			show(individualLine);
+         	document.formsoc.private.value=1;
+        }, false);
+		document.getElementById("issameadress").addEventListener('click', function(event) {
+			if( this.checked ){
+				console.log('checkbox adresse ON');
+				document.getElementById("livr_code_postable").value = document.getElementById("fac_code_postable").value;
+				document.getElementById("livr_adresse").value = document.getElementById("fac_adresse").value;
+				document.getElementById("livr_ville").value = document.getElementById("fac_ville").value;
+				document.getElementById("livr_pays").value = document.getElementById("fac_pays").value;
+				document.getElementById("contactfirstname").value = document.getElementById("first_name").value;
+				document.getElementById("contactname").value = document.getElementById("last_name").value;
+			} else {
+				console.log('checkbox adresse OFF');
+				document.getElementById("livr_code_postable").value = '';
+				document.getElementById("livr_adresse").value = '';
+				document.getElementById("livr_ville").value = '';
+				document.getElementById("livr_pays").value = '';
+				document.getElementById("contactfirstname").value = '';
+				document.getElementById("contactname").value = '';
+			}
+         }, false);
+	});
+} else {
+	jQuery(document).ready(function(){
 	 is_private=<?=is_null($this->private)?0:$this->private?>;
 		if (is_private) {
 			jQuery(".individualline").show();
@@ -186,7 +239,10 @@ class WPDoliFormAbonnement {
 			}
          });
 		
-});
+	});
+	
+}
+
 </script>
 <?php $tabLabel=self::getAttributsLable()?>
 <form action="<?php  $_SERVER['REQUEST_URI'] ?>" method="post"
