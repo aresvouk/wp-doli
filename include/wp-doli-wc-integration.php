@@ -376,11 +376,8 @@ class WPDoli_WC_Integration extends WC_Integration {
 				'note_public'=> $arrThirdparty['communication'],
 				'province_id'=> null,
 				'country_id'=> null,
-		
 				'country'=> null,
-		
 				'fax'=> null,
-		
 				'url'=> null,
 				'profid1'=> null,
 				'profid2'=> null,
@@ -396,17 +393,11 @@ class WPDoli_WC_Integration extends WC_Integration {
 				'isnewletter'=>  $arrThirdparty['isnewletter']
 		);
 		
-	
-
-
 		try {
 			$parameters = array('authentication'=>$this->getCurrentAuth(),'thirdparty'=>$new_thirdparty,'idCmd'=>$arrThirdparty['produit_id']);
 			$WS_METHOD  = 'createThirdParty';
 			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
-          //var_dump($result);exit;
-              //
-			//$result = $soap_client->createThirdParty( $this->getCurrentAuth(), $new_thirdparty->getAttributsValues() ,$arrThirdparty['produit_id']);
-
+                        //var_dump($result);
 		} catch ( SoapFault $exception ) {
 			$this->logger->add(
 					'wpdoli',
@@ -422,7 +413,6 @@ class WPDoli_WC_Integration extends WC_Integration {
 					'wpdoli',
 					'createThirdParty response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']
 			); */
-			//var_dump($result);exit;
 			// Do nothing
 			return -1;
 		}

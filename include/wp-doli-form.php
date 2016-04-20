@@ -567,7 +567,7 @@ if (typeof jQuery == 'undefined') {
 			//echo 'Registration complete. Goto <a href="' . get_site_url() . '/wp-login.php">login page</a>.';
 			if(intval($re)>0)
 				echo '<div> Les informations ont été enregistrées avec succès <a href="'.$_SERVER['REQUEST_URI'].'"> Nouvel abonnement</a></div>';
-			else echo '<div> votre abonnement n\' pas été pris en compte<a href="'.$_SERVER['REQUEST_URI'].'"> Réessayez </a></div>';
+			else echo '<div> votre abonnement n\'a pas été pris en compte. <a href="'.$_SERVER['REQUEST_URI'].'">Réessayez.</a></div>';
 			$ok=1;
 		}
 		return $ok;
