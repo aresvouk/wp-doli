@@ -291,16 +291,14 @@ class WPDoli_WC_Integration extends WC_Integration {
 		$wsdl_mode = self::WSDL_MODE;
 		$prod = array();
 		$soap_client = $this->getClientSoap($service, $wsdl_mode);
-		if(!is_object($soap_client))
+		if(!is_object($soap_client)) {
+			$this->logger->add('wpdoli','SOAP Library is not working properly!');
 			return $soap_client;
-		//liste des produits de dolibarr
+                }
 		try {
-			//$result = $soap_client->getListOfProductsOrServices($this->getCurrentAuth());
 			$parameters = array('authentication'=>$this->getAuth($username, $password));
 			$WS_METHOD  = 'getUser';
 			$result = $soap_client->call($WS_METHOD,$parameters,self::WPDOLI_NS,'');
-	
-			//$result = $soap_client->getProductsForCategory($ws_auth,1);
 		} catch ( SoapFault $exception ) {
 			$this->logger->add('wpdoli','getUser request: ' . $exception->getMessage());
 			$this->errors[] = 'Webservice error:' . $exc->getMessage();
@@ -308,14 +306,12 @@ class WPDoli_WC_Integration extends WC_Integration {
 			return -1;
 		}
 		
-		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {//var_dump($result);exit;
-			//$this->logger->add('wpdoli','getUser response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
+		if ( ! ( 'OK' == $result['result']['result_code'] ) ) {
+			$this->logger->add('wpdoli','getUser response: ' . $result['result']['result_code'] . ': ' . $result['result']['result_label']);
 			// Do nothing
 			return $result;
 		}
 		
-		/** @var Dolibarr_Product[] $dolibarr_products */
-		//var_dump($result);
 		//$dolibarr_user = $result['user'];
 		return $result	;
 	}

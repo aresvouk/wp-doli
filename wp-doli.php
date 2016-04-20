@@ -3,7 +3,7 @@
 Plugin Name: WPDoli
 Plugin URI: https://github.com/tonin/abonibarr
 Description: Création de client Dolibarr par formulaire WordPress
-Version: 0.3
+Version: 0.4
 Author: Cassiopea asbl
 Author URI: http://www.cassiopea.org/
 License: GPL-3.0+
@@ -11,7 +11,7 @@ Text Domain: WPDoli
 Domain Path: /languages
 */
 // Initialize constants.
-define('WPDOLI_VERSION', '0.3');
+define('WPDOLI_VERSION', '0.4');
 define('WPDOLI_DEBUG', false);
 if (false === extension_loaded('soap')) {
 	esc_html_e( __( 'This plugin needs SOAP PHP extension.', 'doliwoo' ) );
@@ -126,10 +126,8 @@ Class Wpdoli {
 		// authentication normale de wp
 		if ($role_allow) {
 			return wp_authenticate_username_password($user, $username, $password);
-			 
 		} else { // verifier dans dolibarr
 			$rep =  $this->dolibarr->dolibarr_check_authentication($username, $password);
-			//var_dump($rep);exit;
 			if (isset($rep ["result"]["result_code"]) && $rep ["result"]["result_code"]=='OK') {
 				if (username_exists($username)) {
 					$user = get_userdatabylogin($username);
@@ -147,7 +145,9 @@ Class Wpdoli {
 					
 					//On success
 					if (!is_wp_error($user_id)) {
-						$resp = $this->createTransaction($user_id, 8);
+                                                if (is_plugin_active('memberpress/memberpress.php')) {
+                                                    $resp = $this->createTransaction($user_id, 8);
+                                                }
 						//var_dump($resp,'response');exit;
 						$user = get_userdatabylogin($username);
 						return $user;
@@ -186,6 +186,7 @@ Class Wpdoli {
 		);
 	}
 	
+// This function is specific to the MemberPress plugin
 public function createTransaction($user_id,$product_id) {
 		global $wpdb;
 		$table = "{$wpdb->prefix}mepr_transactions";
