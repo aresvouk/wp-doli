@@ -42,7 +42,7 @@ Class Wpdoli {
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		//add_action ('wp_authenticate' , array($this,'check_custom_authentication'));
 		remove_filter('authenticate', 'wp_authenticate_username_password', 20, 3);
-		add_filter('authenticate', array($this, 'check_custom_authentication'), 20, 3);
+		add_filter('authenticate', array($this, 'check_custom_authentication'), 10, 3);
 		//add_action( 'profile_update', array($this,'my_profile_update' ), 20, 3);
 		add_action('password_reset', array($this, 'my_password_reset'), 10, 2);
 		include_once WPDOLI_PATH_INC.'wp-doli-admin.php';
@@ -145,11 +145,14 @@ Class Wpdoli {
 					
 					//On success
 					if (!is_wp_error($user_id)) {
+                                                #var_dump(is_plugin_active('memberpress/memberpress.php'));
                                                 if (is_plugin_active('memberpress/memberpress.php')) {
-                                                    $resp = $this->createTransaction($user_id, 8);
+                                                    $resp = $this->createTransaction($user_id, 3048);
+						    #var_dump($user_id, $resp);
                                                 }
 						//var_dump($resp,'response');exit;
 						$user = get_userdatabylogin($username);
+						#var_dump($user); 
 						return $user;
 					} else {
 						$error = new WP_Error();
@@ -203,14 +206,14 @@ public function createTransaction($user_id,$product_id) {
 				'product_id'      => $product_id,
 				'coupon_id'       => 0,
 				'trans_num'       => 'mp-txn-'.uniqid(),
-				'status'          => "confirmed",
+				'status'          => "complete",
 				'txn_type'        => "payment",
 				'response'        => '',
-				'gateway'         => 'MeprPayPalGateway',
-				'prorated'        => null,
+				'gateway'         => 'manual',
+				'prorated'        => 0,
 				'ip_addr'         => $_SERVER['REMOTE_ADDR'],
-				'created_at'      => null,
-				'expires_at'      => null, // 0 = lifetime, null = default expiration for membership
+				'created_at'      => date ("Y-m-d H:i:s"),
+				'expires_at'      => '0000-00-00 00:00:00', // 0 = lifetime, null = default expiration for membership
 				'subscription_id' => 0
 		);
 		return $wpdb->insert( $table,$data );
